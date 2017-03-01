@@ -14,7 +14,14 @@ def sp_update(tokens,tags,weights,feat_func,tagger,all_tags):
     :rtype: defaultdict
 
     """
-    raise NotImplementedError
+    feature_vect = defaultdict(float)
+    predicted_tags = tagger(tokens, feat_func, weights, all_tags)[0]
+    if predicted_tags != tags:
+        feature_vect.update(tagger_base.compute_features(tokens, tags, feat_func))
+        pred_feature_vect = tagger_base.compute_features(tokens, predicted_tags, feat_func)
+        for pred_feature in pred_feature_vect:
+            feature_vect[pred_feature] -= pred_feature_vect[pred_feature]
+    return feature_vect
     
 def estimate_perceptron(labeled_instances,feat_func,tagger,N_its,all_tags=None):
     """Estimate a structured perceptron
@@ -46,11 +53,28 @@ def estimate_perceptron(labeled_instances,feat_func,tagger,N_its,all_tags=None):
     # this makes it easier to test your code
     weights = defaultdict(float,
                           {('NOUN',constants.OFFSET):1e-3})
-
+    change = defaultdict(lambda:1)
+    avg_weights = weights.copy()
+    w_sum = defaultdict(float)
     weight_history = []
-
+    t = 0
     # the rest is up to you!
-    raise NotImplementedError
+    for it in xrange(N_its):
+        for instance in labeled_instances:
+            t += 1
+            weights_update = sp_update(instance[0], instance[1], weights, feat_func, tagger, all_tags)
+            print weights_update
+            for weight in weights_update:
+                w_sum[weight] += weights[weight] * (t - change[weight])
+                weights[weight] += weights_update[weight]
+                change[weight] = t
+        for weight in weights:
+            w_sum[weight] += weights[weight]*(t + 1 - change[weight])
+            change[weight] = t + 1
+            avg_weights[weight] = w_sum[weight] / t
+        weight_history.append(avg_weights.copy())
+    return avg_weights, weight_history
+
 
 
 

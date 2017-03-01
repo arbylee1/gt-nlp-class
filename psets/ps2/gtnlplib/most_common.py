@@ -50,11 +50,12 @@ def get_most_common_word_weights(trainfile):
             all_counters[word][tag] += 1
     weights = defaultdict(float)
     for word in all_counters.keys():
-        sum = 0
+        best_tag = (0, u'NOUN')
         for tag in all_counters[word].keys():
-            sum += all_counters[word][tag]
-        for tag in all_counters[word].keys():
-            weights[(tag, word)] = float(all_counters[word][tag])/sum
+            if all_counters[word][tag] > best_tag[0]:
+                best_tag = all_counters[word][tag], tag
+        weights[(best_tag[1], word)] = 1.0
+    weights[u'NOUN', OFFSET] = 0.99
     return weights
 
 def get_tag_trans_counts(trainfile):

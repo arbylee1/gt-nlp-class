@@ -14,7 +14,10 @@ def word_feats(words,y,y_prev,m):
     :rtype: dict
 
     """
-    fv = dict()    
+    fv = dict()
+    if m < len(words):
+        fv[(y, constants.CURR_WORD_FEAT, words[m])] = 1
+    fv[(y, constants.OFFSET)] = 1
     return fv
 
 # Deliverable 2.1

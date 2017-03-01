@@ -2,7 +2,7 @@ from gtnlplib.constants import OFFSET
 import numpy as np
 
 # hint! use this.
-argmax = lambda x : max(x.iteritems(),key=lambda y : y[1])[0]
+argmax = lambda x : max(x.iteritems(), key=lambda y : y[1])[0]
 
 def make_feature_vector(base_features,label):
     """take a counter of base features and a label; return a dict of features, corresponding to f(x,y)
@@ -13,7 +13,10 @@ def make_feature_vector(base_features,label):
     :rtype: dict
 
     """
-    raise NotImplementedError
+    feature_vector = {(label, OFFSET): 1}
+    for feature, count in base_features.iteritems():
+        feature_vector[(label,feature)] = count
+    return feature_vector
     
 def predict(base_features,weights,labels):
     """prediction function
@@ -25,7 +28,12 @@ def predict(base_features,weights,labels):
     :rtype: string, dict
 
     """
-    raise NotImplementedError
+    scores = {}
+    for label in labels:
+        score = weights[(label, OFFSET)]
+        for feature, count in base_features.iteritems():
+            score += weights[(label, feature)]*count
+        scores[label] = score
     return argmax(scores),scores
 
 def predict_all(x,weights,labels):

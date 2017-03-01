@@ -15,7 +15,11 @@ def hmm_features(tokens,curr_tag,prev_tag,m):
     :rtype: dict
 
     """
-    raise NotImplementedError
+    ret = {}
+    if m < len(tokens):
+        ret[(curr_tag, tokens[m], EMIT)] = 1
+    ret[(curr_tag, prev_tag, TRANS)] = 1
+    return ret
     
 
 def compute_HMM_weights(trainfile,smoothing):
@@ -29,6 +33,7 @@ def compute_HMM_weights(trainfile,smoothing):
     """
     # hint: these are your first two lines
     tag_trans_counts = most_common.get_tag_trans_counts(trainfile)
+    tag_word_counts = most_common.get_tag_word_counts(trainfile)
     all_tags = tag_trans_counts.keys()
 
     # hint: call compute_transition_weights
@@ -37,7 +42,13 @@ def compute_HMM_weights(trainfile,smoothing):
     # hint: Counter.update() combines two Counters
 
     # hint: return weights, all_tags
-    raise NotImplementedError
+    trans_weights = compute_transition_weights(tag_trans_counts, smoothing)
+    emission_weights = naive_bayes.estimate_nb_tagger(tag_word_counts, smoothing)
+    tagged_emission_weights = {}
+    for weight in emission_weights:
+        tagged_emission_weights[(weight[0], weight[1], EMIT)] = emission_weights[weight]
+    trans_weights.update(tagged_emission_weights)
+    return trans_weights, all_tags
 
 
 def compute_transition_weights(trans_counts, smoothing):
@@ -52,8 +63,23 @@ def compute_transition_weights(trans_counts, smoothing):
     :returns: dict of features [(curr_tag,prev_tag,TRANS)] and weights
 
     """
-
     weights = defaultdict(float)
-    raise NotImplementedError
-    
+    dest_tags = set(trans_counts.keys())
+    start_tags = set(trans_counts.keys())
+    all_tags = set(trans_counts.keys())
+    all_tags.add(END_TAG)
+    dest_tags.remove(START_TAG)
+    dest_tags.add(END_TAG)
+    for start in start_tags:
+        sum = 0
+        for dest in dest_tags:
+            sum += trans_counts[start][dest]
+        denominator = sum + len(dest_tags) * smoothing
+        for tag in dest_tags:
+            weights[(tag, start, TRANS)] = np.log((trans_counts[start][tag] + smoothing) / denominator)
+    for tag in all_tags:
+        weights[(START_TAG, tag, TRANS)] = -np.inf
+        weights[(tag, END_TAG, TRANS)] = -np.inf
+    return weights
+
 

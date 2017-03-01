@@ -1,10 +1,11 @@
 from gtnlplib.constants import OFFSET
+import numpy as np
 
-import operator
-# use this to find the highest-scoring label
-argmax = lambda x : max(x.iteritems(),key=operator.itemgetter(1))[0]
+# hint! use this.
+argmax = lambda x: max(x.iteritems(), key=lambda y: y[1])[0]
 
-def make_feature_vector(base_features,label):
+
+def make_feature_vector(base_features, label):
     """take a counter of base features and a label; return a dict of features, corresponding to f(x,y)
 
     :param base_features: counter of base features
@@ -13,9 +14,13 @@ def make_feature_vector(base_features,label):
     :rtype: dict
 
     """
-    raise NotImplementedError
-    
-def predict(base_features,weights,labels):
+    feature_vector = {(label, OFFSET): 1}
+    for feature, count in base_features.iteritems():
+        feature_vector[(label, feature)] = count
+    return feature_vector
+
+
+def predict(base_features, weights, labels):
     """prediction function
 
     :param base_features: a dictionary of base features and counts
@@ -25,4 +30,10 @@ def predict(base_features,weights,labels):
     :rtype: string, dict
 
     """
-    raise NotImplementedError
+    scores = {}
+    for label in labels:
+        score = weights[(label, OFFSET)]
+        for feature, count in base_features.iteritems():
+            score += weights[(label, feature)] * count
+        scores[label] = score
+    return argmax(scores), scores

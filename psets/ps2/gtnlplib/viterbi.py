@@ -1,6 +1,6 @@
 import operator
 from collections import defaultdict, Counter
-from gtnlplib.constants import START_TAG,END_TAG
+from gtnlplib.constants import START_TAG,END_TAG, TRANS
 import numpy as np
 
 def argmax(scores):
@@ -25,13 +25,9 @@ def viterbi_step(tag, m, words, feat_func, weights, prev_scores):
     :rtype: tuple
 
     """
-
-    raise NotImplementedError
-    
-    feats = None #replace with something smart
-    
-    scores = None #replace with something smart
-
+    score = None
+    feats = {prev_tag: feat_func(words, tag, prev_tag, m) for prev_tag in prev_scores.keys()}
+    scores = {prev_tag: sum([weights[feat] for feat in feats[prev_tag].keys()]) + prev_scores[prev_tag] for prev_tag in feats.keys()}
     best_score = max(scores.values())
     best_tag = argmax(scores)
     
@@ -51,17 +47,17 @@ def build_trellis(tokens,feat_func,weights,all_tags):
     :rtype: list of dicts
 
     """
-    raise NotImplementedError
     
-    trellis = [None]*(len(tokens))
+    trellis = [{}]*(len(tokens))
 
     # build the first column separately
-    trellis[0] = None # your code here
-    
+    null_score = defaultdict(float)
+    null_score.update({START_TAG: 0})
+    trellis[0] = {tag: viterbi_step(tag, 0, tokens, feat_func, weights, null_score) for tag in all_tags}
     # iterate over the remaining columns
     for m in range(1,len(tokens)):
-        trellis[m] = None # your code here (call viterbi_step)
-        
+        prev_scores = {key: trellis[m - 1][key][0] for key in trellis[m - 1].keys()}
+        trellis[m] = {tag: viterbi_step(tag, m, tokens, feat_func, weights, prev_scores) for tag in all_tags}
     return trellis
 
 
@@ -80,20 +76,19 @@ def viterbi_tagger(tokens,feat_func,weights,all_tags):
         is the tag of words[i])
         best_score -- The highest score of any sequence of tags
     """
-    raise NotImplementedError
     
     trellis = build_trellis(tokens,feat_func,weights,all_tags)
 
     # Step 1: find last tag and best score
-    final_scores = None #your code here
-
+    final_scores = {}
+    for tag in trellis[-1]:
+        final_scores[tag] = trellis[-1][tag][0] + weights[END_TAG, tag, TRANS]
     last_tag = argmax(final_scores)
     best_score = max(final_scores.values())
-
     # Step 2: walk backwards through trellis to find best tag sequence
     output = [last_tag] # keep
     for m,v_m in enumerate(reversed(trellis[1:])): #keep
-        pass # your code here
-
+        output.append(v_m[output[-1]][1])
+    output.reverse()
     return output,best_score
 

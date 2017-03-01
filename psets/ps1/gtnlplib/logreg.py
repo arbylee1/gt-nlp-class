@@ -16,7 +16,15 @@ def compute_py(x,weights,labels):
 
     """
     # hint: you should use clf_base.predict and logsumexp
-    raise NotImplementedError
+    prob_dist = predict(x, weights, labels)[1]
+    print prob_dist
+    denom = logsumexp(prob_dist.values())
+    for label in prob_dist:
+        prob_dist[label] = np.exp(prob_dist[label] - denom)
+    return prob_dist
+
+
+
     
 def estimate_logreg(x,y,N_its,learning_rate=1e-4,regularizer=1e-2,lazy_reg=True):
     """estimate a logistic regression classifier

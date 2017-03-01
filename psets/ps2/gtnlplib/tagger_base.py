@@ -26,13 +26,8 @@ def make_classifier_tagger(weights):
         """
         ret = []
         for word in words:
-            max_val = (0.0, 'NOUN')
-            for tag in all_tags:
-                if max_val[0] < weights[(tag, word)]:
-                    max_val = (weights[(tag, word)], tag)
-            ret.append(max_val[1])
+            ret.append(clf_base.predict({word:1}, weights, all_tags)[0])
         return ret
-
     return classify
 
 

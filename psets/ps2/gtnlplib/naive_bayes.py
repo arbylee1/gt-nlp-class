@@ -80,4 +80,20 @@ def estimate_nb_tagger(counters,smoothing):
 
     """
     # hint: call estimate_nb, then modify the o`````````````````utput
-    print counters
+    y = []
+    x = []
+    for tag in counters.keys():
+        y.append(tag)
+        x.append(counters[tag])
+    nb = estimate_nb(x, y, smoothing)
+    num_words = 0
+    for counter in x:
+        for word in counter.keys():
+            num_words += counter[word]
+    for tag, counter in zip(y, x):
+        sum = 0
+        for word in counter.keys():
+            sum += counter[word]
+        nb[(tag,OFFSET)] = np.log(float(sum) / num_words)
+    return nb
+

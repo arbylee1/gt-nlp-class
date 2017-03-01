@@ -4,14 +4,16 @@ Fill in the rest of the table below:
 
 |      | they | can | can | fish | END |
 |------|------|-----|-----|------|-----|
-| Noun | -2   |     |     |      | n/a |
-| Verb | -13  |     |     |      | n/a |
+| Noun | -2   | -10 | -10 | -15  | n/a |
+| Verb | -13  | -6  | -11 | -16  | n/a |
 | End  | n/a  | n/a | n/a | n/a  | -17 |
 
 
 # 4.3 (0.5 points)
 
 Do you think the predicted tags "PRON AUX AUX NOUN" for the sentence "They can can fish" are correct? Use your understanding of parts-of-speech from the notes.
+
+No. These are not correct. Stringing auxiliary cans is not expected.
 
 # 4.4 (0.5 points)
 
@@ -20,9 +22,16 @@ The HMM weights include a weight of zero for the emission of unseen words. Pleas
 - why this is a violation of the HMM probability model explained in the notes;
 - How, if at all, this will affect the overall tagging.
 
+These are log probabilities so exp(0) = 1. 
+
 # 5.1 (1 point 4650; 0.5 points 7650)
 
 Please list the top three tags that follow verbs and nouns in English and Japanese.
+ENG: DET, ADP, PRON. In English, what tends to follow verbs is some object (pronouns or determiners preceding nouns, often) that the verb is acting on or an adpositioning modifying the
+action of the verb.
+JAP: NOUN, --END--, PUNCT. In Japanese, the verb often ends the sentence/phrase (--END--, PUNCT) 
+ENG: PUNCT, ADP, NOUN
+JAP: NOUN, VERB, PUNCT. In Japanese, subjects and objects are often grouped together (NOUN) and verbs generally follow nouns. 
 
 Try to explain some of the differences that you observe, making at least two distinct points about differences between Japanese and English.
 

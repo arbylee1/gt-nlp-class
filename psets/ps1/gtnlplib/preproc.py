@@ -14,7 +14,12 @@ def tokenize_and_downcase(string,vocab=None):
 
     """
     bow = Counter()
-    raise NotImplementedError
+    sent_tokens = nltk.sent_tokenize(string)
+    word_tokens = []
+    for sentence in sent_tokens:
+        word_tokens += nltk.tokenize.word_tokenize(sentence)
+    for word in word_tokens:
+        bow[word.lower()] += 1
     return bow
 
 
